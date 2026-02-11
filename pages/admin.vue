@@ -111,6 +111,16 @@
         <p v-if="recentReports.length > 0" class="text-sm text-slate-500 mt-2 text-center">
           平均スコア: {{ effectiveStatus?.score ?? '-' }}（すいてる=1, ふつう=2, こんでる=3）
         </p>
+        <!-- デモ用リセットボタン -->
+        <div class="mt-4 pt-4 border-t border-slate-200">
+          <button
+            @click="resetReportsData"
+            :disabled="isResetting"
+            class="w-full px-4 py-2 text-sm font-medium border border-red-300 text-red-600 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {{ isResetting ? 'リセット中...' : '🗑️ デモ用：報告データをリセット' }}
+          </button>
+        </div>
       </section>
 
       <!-- 待ち時間・バナー -->
@@ -174,6 +184,7 @@ const waitSeikei = computed(() => (countSeikei.value || 0) * 10)
 const congestionAlertDismissed = ref(false)
 const hasNewReportBadge = ref(false)
 const prevReportCount = ref(0)
+const isResetting = ref(false)
 
 const { data: hospital, refresh: refreshHospital } = await useAsyncData('hosp', async () => {
   const { data } = await supabase.from('hospitals').select('*').eq('id', hospitalId).single()
@@ -292,6 +303,24 @@ const setManualOverride = async (status) => {
     manual_status_expires_at: expiresAt
   }).eq('id', hospitalId)
   refreshHospital()
+}
+
+// デモ用：報告データリセット（クライアント側から直接削除）
+const resetReportsData = async () => {
+  if (isResetting.value) return
+  if (!confirm('この病院の報告データをすべて削除します。よろしいですか？')) return
+  isResetting.value = true
+  const { error } = await supabase
+    .from('reports')
+    .delete()
+    .eq('hospital_id', hospitalId)
+  if (error) {
+    alert('リセットに失敗しました: ' + error.message)
+    isResetting.value = false
+    return
+  }
+  await refreshReports()
+  isResetting.value = false
 }
 
 const clearManualOverride = async () => {
@@ -498,8 +527,6 @@ onMounted(() => {
   background: #f97316;
   color: white;
   border-color: #ea580c;
-}
-
-.loading { text-align: center; padding: 48px; font-size: 1.125rem; color: #64748b; }
+}.loading { text-align: center; padding: 48px; font-size: 1.125rem; color: #64748b; }
 .hint { font-size: 0.75rem; color: #94a3b8; margin-top: 8px; }
 </style>
