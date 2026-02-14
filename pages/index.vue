@@ -1,9 +1,5 @@
 <template>
-  <div class="app-container">
-    <div v-if="!hospital" class="loading-state">
-      <p>読み込み中...</p>
-    </div>
-    <template v-else>
+  <div class="app-container" v-if="hospital">
     <template v-if="isBannerActive">
       <div v-if="hospital.is_low_alert_naika" class="alert-banner naika-bg">📢 内科：いま空いています！</div>
       <div v-if="hospital.is_low_alert_seikei" class="alert-banner">📢 整形外科：いま空いています！</div>
@@ -12,34 +8,21 @@
     <div class="main-card">
       <h1 class="hospital-name">{{ hospital.name }}</h1>
 
-      <!-- 受付ステータス -->
-      <div class="reception-badge" :style="{ background: isOpen ? '#e6f4ea' : '#fdecea', color: isOpen ? '#1e7e34' : '#c62828' }">
-        {{ isOpen ? '🟢 本日受付中' : '🔴 本日受付終了' }}
+      <div v-if="isOpen" class="reception-badge" style="background-color: #e6f4ea; color: #1e7e34;">
+        🟢 本日受付中
+      </div>
+      <div v-else class="reception-badge" style="background-color: #fdecea; color: #c62828;">
+        🔴 本日受付終了
       </div>
 
       <div class="wait-display">
         <div class="wait-item">内科：<span class="time-value">{{ displayWait.naika }}分</span></div>
         <div class="wait-item">整形：<span class="time-value">{{ displayWait.seikei }}分</span></div>
-
-        <!-- 混雑状況ゲージ（Tailwind 3段階カラー） -->
-        <div
-          class="mt-5 pt-5 border-t border-dashed border-gray-300"
-          :class="isManualOverride ? '' : (displayStatus?.isReliable ? '' : 'opacity-75')"
-        >
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-bold text-gray-600">👥 患者さんの体感（直近30分）</span>
-            <span
-              v-if="!displayStatus?.isReliable && !isManualOverride && recentReports.length > 0"
-              class="px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-600"
-            >
-              参考情報
-            </span>
-            <span
-              v-if="isManualOverride"
-              class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-600 text-white"
-            >
-              病院による確定情報
-            </span>
+        
+        <div class="report-summary-box" v-if="recentReports.length > 0">
+          <div class="report-summary-header">
+            <span>👥 患者さんの体感（直近30分）</span>
+            <span v-if="recentReports.length < 3" class="ref-tag">参考情報</span>
           </div>
 
           <div v-if="displayStatus || isManualOverride" class="relative overflow-hidden rounded-full h-12 bg-slate-100">
@@ -104,7 +87,6 @@
         </div>
       </section>
     </div>
-    </template>
   </div>
 </template>
 
@@ -273,7 +255,7 @@ const reportOptions = [
 .time-value { color: #1A237E; font-size: 2.8rem; font-weight: bold; }
 
 .guide-text { font-size: 1.1rem; color: #666; font-weight: bold; margin-bottom: 12px; }
-.day-selector { display: flex; gap: 10px; margin-bottom: 25px; }
+.day-selector { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
 .day-selector button { flex: 1; padding: 15px; border-radius: 20px; border: 3px solid #4FA3D1; background: white; color: #4FA3D1; font-size: 1.2rem; font-weight: bold; }
 .time-selector-vertical { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
 .time-selector-vertical button { padding: 15px; border-radius: 15px; border: 2px solid #4FA3D1; background: white; color: #4FA3D1; font-size: 1.2rem; font-weight: bold; }

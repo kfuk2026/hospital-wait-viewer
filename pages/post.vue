@@ -53,9 +53,6 @@
 </template>
 
 <script setup>
-// デモ用: true=受付中, false=受付終了（この値を変えるだけで切り替え可能）
-const isOpen = true
-
 const supabase = useSupabaseClient()
 const route = useRoute()
 
@@ -67,8 +64,32 @@ const submitted = ref(false)
 const sending = ref(false)
 const sendError = ref(null)
 
-// hospital_id チェック & 病院データ取得
+// 受付ステータス（localStorage 連動）
+const isOpen = ref(true)
+let statusPollTimer = null
+
+const checkLocalStorage = () => {
+  const saved = localStorage.getItem('hospital_status')
+  isOpen.value = saved !== 'closed'
+}
+
+const handleStorageChange = (event) => {
+  if (event.key === 'hospital_status') {
+    checkLocalStorage()
+  }
+}
+
+// hospital_id チェック & 病院データ取得 + localStorage 読み込み
 onMounted(async () => {
+  // localStorage から受付状態を読み込み
+  checkLocalStorage()
+
+  // 他タブからの変更をリアルタイム検知
+  window.addEventListener('storage', handleStorageChange)
+
+  // 500msごとに監視（同じタブ内でも即時反映するため）
+  statusPollTimer = setInterval(checkLocalStorage, 500)
+
   if (!hospitalId) {
     errorMsg.value = 'hospital_id が指定されていません'
     loading.value = false
@@ -89,6 +110,11 @@ onMounted(async () => {
 
   hospital.value = data
   loading.value = false
+})
+
+onUnmounted(() => {
+  window.removeEventListener('storage', handleStorageChange)
+  if (statusPollTimer) clearInterval(statusPollTimer)
 })
 
 const send = async (status) => {
@@ -208,12 +234,12 @@ const options = [
   margin-bottom: 20px;
 }
 .status-open {
-  background: #ECFDF5;
-  color: #047857;
+  background: #e6f4ea;
+  color: #1e7e34;
 }
 .status-closed {
-  background: #FEF2F2;
-  color: #B91C1C;
+  background: #fdecea;
+  color: #c62828;
 }
 
 /* ボタン */
@@ -257,8 +283,9 @@ const options = [
   margin-left: auto;
 }
 .btn-disabled .report-btn {
-  background: #f1f5f9 !important;
-  color: #94a3b8 !important;
+  background: #ccc !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
 }
 
 .error-msg {
