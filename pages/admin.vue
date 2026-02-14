@@ -520,9 +520,7 @@ onMounted(() => {
   font-weight: 600;
   font-size: 0.9375rem;
   color: #475569;
-}
-
-.toggle-btn:hover { background: #f1f5f9; }
+}.toggle-btn:hover { background: #f1f5f9; }
 .toggle-btn.active {
   background: #f97316;
   color: white;

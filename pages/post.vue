@@ -25,15 +25,20 @@
       <p class="post-label">🏥 投稿先</p>
       <h1 class="hospital-name">{{ hospital.name }}</h1>
 
+      <!-- 受付ステータス -->
+      <div :class="['status-badge', isOpen ? 'status-open' : 'status-closed']">
+        {{ isOpen ? '🟢 本日受付中' : '🔴 本日受付終了' }}
+      </div>
+
       <p class="post-question">いまの混雑状況を教えてください</p>
 
-      <div class="btn-group">
+      <div class="btn-group" :class="{ 'btn-disabled': !isOpen }">
         <button
           v-for="opt in options"
           :key="opt.status"
-          :disabled="sending"
+          :disabled="sending || !isOpen"
           class="report-btn"
-          :style="{ background: opt.bg, color: opt.color }"
+          :style="isOpen ? { background: opt.bg, color: opt.color } : {}"
           @click="send(opt.status)"
         >
           <span class="btn-icon">{{ opt.icon }}</span>
@@ -48,6 +53,9 @@
 </template>
 
 <script setup>
+// デモ用: true=受付中, false=受付終了（この値を変えるだけで切り替え可能）
+const isOpen = true
+
 const supabase = useSupabaseClient()
 const route = useRoute()
 
@@ -189,6 +197,25 @@ const options = [
   margin-bottom: 20px;
 }
 
+/* 受付ステータスバッジ */
+.status-badge {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.status-open {
+  background: #ECFDF5;
+  color: #047857;
+}
+.status-closed {
+  background: #FEF2F2;
+  color: #B91C1C;
+}
+
 /* ボタン */
 .btn-group {
   display: flex;
@@ -228,6 +255,10 @@ const options = [
   font-size: 0.8rem;
   opacity: 0.7;
   margin-left: auto;
+}
+.btn-disabled .report-btn {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
 }
 
 .error-msg {

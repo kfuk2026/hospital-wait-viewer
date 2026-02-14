@@ -12,6 +12,11 @@
     <div class="main-card">
       <h1 class="hospital-name">{{ hospital.name }}</h1>
 
+      <!-- 受付ステータス -->
+      <div class="reception-badge" :style="{ background: isOpen ? '#e6f4ea' : '#fdecea', color: isOpen ? '#1e7e34' : '#c62828' }">
+        {{ isOpen ? '🟢 本日受付中' : '🔴 本日受付終了' }}
+      </div>
+
       <div class="wait-display">
         <div class="wait-item">内科：<span class="time-value">{{ displayWait.naika }}分</span></div>
         <div class="wait-item">整形：<span class="time-value">{{ displayWait.seikei }}分</span></div>
@@ -79,8 +84,8 @@
           <button
             v-for="opt in reportOptions"
             :key="opt.status"
-            :disabled="isSendingReport"
-            :class="[opt.class, { 'selected-btn': lastReport === opt.status }]"
+            :disabled="isSendingReport || !isOpen"
+            :class="[opt.class, { 'selected-btn': lastReport === opt.status, 'btn-closed': !isOpen }]"
             @click="sendReport(opt.status)"
           >
             <span class="main-text">
@@ -104,6 +109,9 @@
 </template>
 
 <script setup>
+// デモ用: true=受付中, false=受付終了（この値を切り替えるだけで表示・ボタン状態が変わる）
+const isOpen = true
+
 const supabase = useSupabaseClient()
 const hospitalId = 'd6e29b2d-668a-4450-ba27-25c8724f5715'
 
@@ -281,4 +289,22 @@ const reportOptions = [
 
 .status-message { text-align: center; margin-top: 25px; }
 .sent-msg { font-size: 1.2rem; font-weight: bold; color: #333; }
+
+/* 受付ステータスバッジ */
+.reception-badge {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 1.05rem;
+}
+
+/* 受付終了時のボタン */
+.btn-closed {
+  background-color: #ccc !important;
+  color: #888 !important;
+  cursor: not-allowed !important;
+}
 </style>
