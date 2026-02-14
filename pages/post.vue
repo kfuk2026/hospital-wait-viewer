@@ -25,11 +25,6 @@
       <p class="post-label">🏥 投稿先</p>
       <h1 class="hospital-name">{{ hospital.name }}</h1>
 
-      <!-- 受付ステータス -->
-      <div :class="['status-badge', isOpen ? 'status-open' : 'status-closed']">
-        {{ isOpen ? '🟢 本日受付中' : '🔴 本日受付終了' }}
-      </div>
-
       <p class="post-question">いまの混雑状況を教えてください</p>
 
       <div class="btn-group" :class="{ 'btn-disabled': !isOpen }">
@@ -223,6 +218,7 @@ const options = [
   margin-bottom: 20px;
 }
 
+
 /* 受付ステータスバッジ */
 .status-badge {
   width: 100%;
@@ -282,6 +278,7 @@ const options = [
   opacity: 0.7;
   margin-left: auto;
 }
+
 .btn-disabled .report-btn {
   background: #ccc !important;
   color: #888 !important;
