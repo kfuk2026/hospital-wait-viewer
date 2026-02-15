@@ -16,8 +16,10 @@
       </div>
 
       <div class="wait-display">
-        <div class="wait-item">内科：<span class="time-value">{{ displayWait.naika }}分</span></div>
-        <div class="wait-item">整形：<span class="time-value">{{ displayWait.seikei }}分</span></div>
+        <p class="wait-heading">診察までの待ち時間（目安）</p>
+        <div class="wait-item">内科：<span class="time-value">{{ displayWait.naika }}分〜</span></div>
+        <div class="wait-item">整形：<span class="time-value">{{ displayWait.seikei }}分〜</span></div>
+        <p class="wait-note">※混雑状況により前後します</p>
         
         <div class="report-summary-box" v-if="recentReports.length > 0">
           <div class="report-summary-header">
@@ -252,7 +254,9 @@ const reportOptions = [
 .hospital-name { text-align: center; font-size: 1.8rem; color: #333; margin-bottom: 15px; }
 
 .wait-display { text-align: center; margin-bottom: 30px; background: #F8FDFF; padding: 20px; border-radius: 25px; border: 1px solid #E1F5FE; }
+.wait-heading { font-size: 0.95rem; color: #666; font-weight: bold; margin-bottom: 8px; }
 .time-value { color: #1A237E; font-size: 2.8rem; font-weight: bold; }
+.wait-note { font-size: 0.75rem; color: #999; margin-top: 6px; }
 
 .guide-text { font-size: 1.1rem; color: #666; font-weight: bold; margin-bottom: 12px; }
 .day-selector { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
